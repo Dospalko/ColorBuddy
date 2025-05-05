@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend # Cesta k Dockerfile pre backend
+    container_name: colorbuddy-backend
+    ports:
+      - "8000:8000" # Mapuj port 8000 z kontajnera na port 8000 na hostiteľovi
+    volumes:
+      - ./backend/app:/app/app # Mapuj lokálny adresár app do kontajnera pre live reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload # Príkaz na spustenie
+    environment:
+      # Tu môžeš pridať environment variables, napr. pre API kľúče
+      # OPENAI_API_KEY: ${OPENAI_API_KEY} # Načíta z .env súboru, ak existuje
+      # PYTHONUNBUFFERED: 1 # Odporúčané pre logovanie v Docker
+      PYTHONUNBUFFERED: 1
+
+  frontend:
+    build: ./frontend # Cesta k Dockerfile pre frontend
+    container_name: colorbuddy-frontend
+    ports:
+      - "5173:5173" # Mapuj port 5173 z kontajnera na port 5173 na hostiteľovi (Vite dev server)
+    volumes:
+      - ./frontend:/app # Mapuj celý frontend adresár
+      # Z named volume vylúčime node_modules, aby sa nepísalo na lokálny FS
+      - /app/node_modules
+    depends_on:
+      - backend # Frontend sa spustí až po backende (negarantuje, že backend je ready)
+    environment:
+      # Povedz Vite, aby sa pripájal na backend bežiaci v Docker sieti
+      # VITE_API_URL: http://backend:8000 # Toto by si použil, ak by si fetchoval z kódu Vite
+      # Ale my fetchujeme priamo na localhost:8000, čo funguje vďaka port mappingu
+      NODE_ENV: development
+
+# Sem neskôr pridáme Redis service
+# redis:
+#   image: redis:alpine
+#   container_name: colorbuddy-redis
+#   ports:
+#     - "6379:6379"
+
+# Sem neskôr pridáme Celery worker service
+# worker:
+#   build: ./backend
+#   container_name: colorbuddy-worker
+#   command: celery -A app.celery_app worker --loglevel=info
+#   volumes:
+#     - ./backend/app:/app/app
+#   environment:
+#     REDIS_URL: redis://redis:6379/0
+#     PYTHONUNBUFFERED: 1
+#   depends_on:
+#     - redis
+#     - backend
