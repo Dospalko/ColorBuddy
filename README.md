@@ -1,1 +1,1 @@
-# ColorBuddy
+# ColorBuddy Project
