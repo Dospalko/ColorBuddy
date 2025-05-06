@@ -1,6 +1,5 @@
-fastapi>=0.100.0
-uvicorn[standard]>=0.23.0
-python-multipart>=0.0.6  # Pre file uploads
-pillow>=9.5.0            # Pre prácu s obrázkami
-colorthief>=0.2.1        # Extrakcia farieb
-coloraide>=0.12.0     
+fastapi
+uvicorn[standard]
+python-multipart
+Pillow
+colorgram.py
