@@ -32,9 +32,9 @@ const InspireMeButton: React.FC<InspireMeButtonProps> = ({
       } else {
         throw new Error("Palette data not found in API response.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error generating random palette:", error);
-      setError(error.message || "Failed to generate a random palette.");
+      setError(error instanceof Error ? error.message : "Failed to generate a random palette.");
       onPaletteGenerated([]); // Clear any existing palette on error
     } finally {
       setIsLoading(false);

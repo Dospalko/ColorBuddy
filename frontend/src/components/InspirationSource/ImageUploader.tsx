@@ -62,9 +62,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       } else {
         throw new Error("Palette data not found in API response.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error extracting palette:", error);
-      setError(error.message || "Failed to extract palette from image.");
+      setError(error instanceof Error ? error.message : "Failed to extract palette from image.");
       onPaletteExtracted([]); // Clear any existing palette on error
     } finally {
       setIsLoading(false);
