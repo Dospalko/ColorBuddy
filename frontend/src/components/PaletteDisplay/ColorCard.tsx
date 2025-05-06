@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Color } from '../../types';
+import type { Color } from '../../types';
 
 interface ColorCardProps {
   color: Color;

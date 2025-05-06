@@ -1,9 +1,8 @@
 import React from 'react';
-import { Palette } from '../../types';
+import type { Palette } from '../../types';
 import ColorCard from './ColorCard';
-import AccessibilityReport from './AccessibilityReport';
 import ExportOptions from './ExportOptions';
-
+import AccessibilityReport from './AccessibilityReport';
 interface PaletteViewProps {
   palette: Palette | null;
   isLoading: boolean;

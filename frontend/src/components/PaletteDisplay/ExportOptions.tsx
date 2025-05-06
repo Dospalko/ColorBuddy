@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Palette } from '../../types';
+import type { Palette } from '../../types';
 
 interface ExportOptionsProps {
   palette: Palette;

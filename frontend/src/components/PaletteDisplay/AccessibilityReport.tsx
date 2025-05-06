@@ -1,6 +1,5 @@
 import React from 'react';
-import { Palette } from '../../types';
-
+import type { Palette } from '../../types';
 interface AccessibilityReportProps {
   palette: Palette;
 }

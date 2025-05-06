@@ -1,5 +1,5 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { Palette, PaletteApiResponse } from '../../types';
+import React, { useState, type ChangeEvent, type FormEvent } from 'react';
+import type { Palette, PaletteApiResponse } from '../../types';
 interface ImageUploaderProps {
   onPaletteExtracted: (palette: Palette) => void;
   setIsLoading: (loading: boolean) => void;
