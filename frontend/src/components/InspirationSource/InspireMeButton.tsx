@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, PaletteApiResponse } from '../../types';
+import type { Palette, PaletteApiResponse } from '../../types';
 
 interface InspireMeButtonProps {
   onPaletteGenerated: (palette: Palette) => void;

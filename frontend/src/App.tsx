@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Palette } from './types'; // Import shared types
+import type { Palette } from './types'; // Import shared types
 
 import AppHeader from './components/AppHeader';
 import ImageUploader from './components/InspirationSource/ImageUploader';
