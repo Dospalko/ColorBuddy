@@ -3,3 +3,8 @@ uvicorn[standard]
 python-multipart
 Pillow
 colorgram.py
+pydantic
+pydantic-settings  # For managing settings
+# For Stage 3 (optional advanced random/AI):
+# openai
+# colormath
