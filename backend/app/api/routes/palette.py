@@ -1,10 +1,12 @@
+# backend/app/api/routes/palette.py
 from fastapi import APIRouter, File, UploadFile, HTTPException, Query
 from typing import Optional
 
-from ....app.models.palette import PaletteResponse # Adjusted import path
-from ....app.services.image_processor import image_processor_service # Adjusted import path
-from ....app.services.palette_generator import palette_generator_service # Placeholder, create this file
-from ....app.core.config import settings # Adjusted import path
+# Fix imports by using absolute imports
+from app.models.palette import PaletteResponse 
+from app.services.image_processor import image_processor_service
+from app.services.palette_generator import palette_generator_service
+from app.core.config import settings
 
 router = APIRouter()
 
