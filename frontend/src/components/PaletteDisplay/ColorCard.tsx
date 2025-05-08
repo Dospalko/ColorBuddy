@@ -1,41 +1,60 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { Color } from '../../types';
+import { useClipboard } from '../../hooks/useClipboard';
+import { getReadableTextColor } from '../../utils/colorUtils'; // Utility for text color
 
 interface ColorCardProps {
   color: Color;
 }
 
 const ColorCard: React.FC<ColorCardProps> = ({ color }) => {
-  const [copied, setCopied] = useState(false);
+  const { copy, hasCopied } = useClipboard({ timeout: 1500 });
+  const readableTextColor = getReadableTextColor(color.hex);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(color.hex)
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1500); // Reset after 1.5 seconds
-      })
-      .catch(err => console.error('Failed to copy: ', err));
+  const handleCopy = (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
+    event.stopPropagation(); // Prevent event bubbling if card is wrapped in something clickable
+    copy(color.hex);
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center group">
       <div
-        className="w-24 h-24 md:w-28 md:h-28 rounded-md shadow-md mb-2 cursor-pointer transition-transform hover:scale-105"
+        className="w-24 h-24 md:w-28 md:h-28 rounded-lg shadow-md mb-2 cursor-pointer 
+                   transition-all duration-200 ease-in-out transform group-hover:scale-105 group-hover:shadow-xl
+                   flex items-center justify-center relative overflow-hidden"
         style={{ backgroundColor: color.hex }}
         title={`Click to copy ${color.hex}`}
         onClick={handleCopy}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === 'Enter' && handleCopy(e as any)} // Basic keyboard accessibility
       >
-        {/* Optional: Display color name if available */}
-        {/* color.name && <span className="text-xs p-1 bg-black bg-opacity-50 text-white">{color.name}</span> */}
+        {/* Optional: Show color name if available, with readable text color */}
+        {color.name && (
+            <span className="absolute bottom-1 left-1 right-1 text-center text-xs p-0.5 bg-black bg-opacity-30 rounded-sm truncate"
+                  style={{ color: readableTextColor }}
+            >
+                {color.name}
+            </span>
+        )}
+        {/* Show "Copied!" overlay */}
+        {hasCopied && (
+            <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center text-white font-semibold">
+                Copied!
+            </div>
+        )}
       </div>
       <button
         onClick={handleCopy}
-        className="px-3 py-1 text-xs font-mono bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+        className="px-3 py-1.5 text-xs font-mono bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 
+                   rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500
+                   transition-colors duration-150"
+        aria-label={`Copy color ${color.hex}`}
       >
-        {copied ? 'Copied!' : color.hex}
+        {color.hex}
       </button>
     </div>
   );
 };
 
-export default ColorCard;
+export default React.memo(ColorCard); // Memoize if color prop is stable
