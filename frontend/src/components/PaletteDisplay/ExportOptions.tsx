@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { Palette } from '../../types';
+import { useClipboard } from '../../hooks/useClipboard';
 
 interface ExportOptionsProps {
   palette: Palette;
 }
 
+type ExportFormat = 'tailwind' | 'css';
+
 const ExportOptions: React.FC<ExportOptionsProps> = ({ palette }) => {
-  const [copiedTailwind, setCopiedTailwind] = useState(false);
-  const [copiedCss, setCopiedCss] = useState(false);
+  const { copy: copyTailwind, hasCopied: hasCopiedTailwind } = useClipboard();
+  const { copy: copyCss, hasCopied: hasCopiedCss } = useClipboard();
 
-  const generateTailwindConfig = (): string => {
-    const colors = palette
-      .map((color, index) => `        'brand-${index + 1}': '${color.hex}', // ${color.name || `Color ${index+1}`}`)
-      .join('\n');
-
-    return `// Add to your tailwind.config.js
+  const generateSnippet = (format: ExportFormat): string => {
+    if (format === 'tailwind') {
+      const colors = palette
+        .map((color, index) => `        'brand-${index + 1}': '${color.hex}',${color.name ? ` // ${color.name}` : ''}`)
+        .join('\n');
+      return `// tailwind.config.js
 module.exports = {
   theme: {
     extend: {
@@ -23,61 +26,62 @@ ${colors}
       },
     },
   },
-  plugins: [],
 };`;
-  };
-
-  const generateCssVariables = (): string => {
-    const variables = palette
-      .map((color, index) => `  --brand-color-${index + 1}: ${color.hex}; /* ${color.name || `Color ${index+1}`} */`)
-      .join('\n');
-
-    return `:root {
+    } else { // css
+      const variables = palette
+        .map((color, index) => `  --brand-color-${index + 1}: ${color.hex};${color.name ? ` /* ${color.name} */` : ''}`)
+        .join('\n');
+      return `:root {
 ${variables}
 }`;
+    }
   };
 
-  const handleCopy = (textGenerator: () => string, setCopiedState: React.Dispatch<React.SetStateAction<boolean>>) => {
-    const textToCopy = textGenerator();
-    navigator.clipboard.writeText(textToCopy)
-      .then(() => {
-        setCopiedState(true);
-        setTimeout(() => setCopiedState(false), 2000);
-      })
-      .catch(err => console.error('Failed to copy:', err));
-  };
+  const CodeBlock: React.FC<{ format: ExportFormat, onCopy: () => void, hasCopied: boolean, title: string }> = 
+    ({ format, onCopy, hasCopied, title }) => (
+    <div>
+      <button
+        onClick={onCopy}
+        className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-md
+                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 dark:focus:ring-offset-gray-800
+                   transition-colors duration-150 mb-2"
+        aria-label={`Copy ${title} configuration`}
+      >
+        {hasCopied ? `Copied ${title}!` : `Copy ${title} Config`}
+      </button>
+      <pre
+        className="text-xs bg-gray-100 dark:bg-gray-900 p-3 rounded-md overflow-x-auto max-h-48 
+                   border border-gray-200 dark:border-gray-700 select-all"
+        role="textbox"
+        aria-readonly="true"
+        aria-label={`${title} code snippet`}
+      >
+        <code>{generateSnippet(format)}</code>
+      </pre>
+    </div>
+  );
 
   return (
-    <div className="mt-8 p-4 border border-gray-300 dark:border-gray-600 rounded-lg">
-      <h3 className="text-xl font-semibold text-gray-700 dark:text-white mb-4">
+    <div className="mt-8 p-5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-md">
+      <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
         Export Palette
       </h3>
-      <div className="grid md:grid-cols-2 gap-4">
-        <div>
-          <button
-            onClick={() => handleCopy(generateTailwindConfig, setCopiedTailwind)}
-            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mb-2"
-          >
-            {copiedTailwind ? 'Copied Tailwind!' : 'Copy Tailwind Config'}
-          </button>
-          <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto max-h-40">
-            <code>{generateTailwindConfig()}</code>
-          </pre>
-        </div>
-        <div>
-          <button
-            onClick={() => handleCopy(generateCssVariables, setCopiedCss)}
-            className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mb-2"
-          >
-            {copiedCss ? 'Copied CSS!' : 'Copy CSS Variables'}
-          </button>
-          <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto max-h-40">
-            <code>{generateCssVariables()}</code>
-          </pre>
-        </div>
+      <div className="grid md:grid-cols-2 gap-6">
+        <CodeBlock 
+            format="tailwind" 
+            onCopy={() => copyTailwind(generateSnippet('tailwind'))} 
+            hasCopied={hasCopiedTailwind}
+            title="Tailwind CSS"
+        />
+        <CodeBlock 
+            format="css" 
+            onCopy={() => copyCss(generateSnippet('css'))} 
+            hasCopied={hasCopiedCss}
+            title="CSS Variables"
+        />
       </div>
     </div>
   );
 };
 
-export default ExportOptions;
+export default React.memo(ExportOptions);
