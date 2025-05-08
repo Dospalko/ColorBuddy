@@ -1,55 +1,58 @@
 import React, { useState, useCallback } from 'react';
 
 interface InspireMeButtonProps {
-  onGenerate: (numColors?: number, prompt?: string) => Promise<void>; // From usePaletteApi
+  onGenerate: (numColors?: number, prompt?: string) => Promise<void>;
   isLoading: boolean;
-  // currentError: string | null; // If you want to show API error specific to this button
-  // clearCurrentError: () => void;
 }
 
 const InspireMeButton: React.FC<InspireMeButtonProps> = ({ onGenerate, isLoading }) => {
-  // Example: If you want to add a prompt input for "Inspire Me"
   const [prompt, setPrompt] = useState('');
-  // const [numColors, setNumColors] = useState<number>(5);
 
   const handleClick = useCallback(async () => {
-    // If you add numColors/prompt options:
-    // onGenerate(numColors, prompt || undefined);
-    await onGenerate(5, prompt || undefined); // Generate 5 colors, pass prompt if entered
+    await onGenerate(5, prompt.trim() || undefined);
   }, [onGenerate, prompt]);
 
   return (
-    <div className="w-full p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-      <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">
-        Need Inspiration?
-      </h2>
-      {/* Optional: Input for AI prompt */}
-      <div className="mb-4">
-          <label htmlFor="aiPrompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Describe your desired palette (optional AI prompt)
-          </label>
-          <input
-              type="text"
-              id="aiPrompt"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="e.g., serene beach sunset, cyberpunk city"
-              className="w-full px-3 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              disabled={isLoading}
-          />
+    <div className="space-y-4">
+      <h3 className="text-2xl font-semibold text-white text-center">Conjure a Palette</h3>
+      <div className="space-y-5">
+          <div>
+            <label htmlFor="aiPrompt" className="sr-only">
+                Palette theme or keywords
+            </label>
+            <input
+                type="text"
+                id="aiPrompt"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="e.g., mystic forest, retro wave, calm ocean"
+                className="w-full px-4 py-3 text-slate-200 bg-white/5 placeholder-slate-500
+                           border-2 border-slate-600/70 rounded-lg focus:outline-none focus:border-purple-500 
+                           focus:ring-1 focus:ring-purple-500 transition-colors duration-200"
+                disabled={isLoading}
+            />
+            <p className="mt-1.5 text-xs text-slate-400 text-center">
+                Describe a theme, or leave blank for random!
+            </p>
+        </div>
+        <button
+          onClick={handleClick}
+          disabled={isLoading}
+          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700
+                     text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:shadow-lg
+                     focus-ring disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 text-base"
+        >
+          {isLoading ? (
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Generating...
+            </span>
+           ) : 'Summon Palette ✨'}
+        </button>
       </div>
-      <button
-        onClick={handleClick}
-        disabled={isLoading}
-        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-md
-                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800
-                   disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors duration-150 text-lg"
-      >
-        {isLoading ? 'Generating...' : 'Inspire Me ✨'}
-      </button>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-        Get a unique palette.
-      </p>
     </div>
   );
 };
