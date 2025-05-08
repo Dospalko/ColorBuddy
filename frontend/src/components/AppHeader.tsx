@@ -1,12 +1,13 @@
 import React from 'react';
 
-const AppHeader: React.FC = React.memo(() => { // React.memo if no props or props are primitive
+const AppHeader: React.FC = React.memo(() => {
   return (
-    <header className="text-center mb-10">
-      <h1 className="text-5xl font-bold text-blue-600 dark:text-blue-400 mb-3 tracking-tight">
-        ColorBuddy 
+    <header className="text-center mb-12 md:mb-16">
+      <h1 className="text-5xl md:text-6xl font-extrabold mb-3 tracking-tight
+                     bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+        ColorBuddy 🎨
       </h1>
-      <p className="text-xl text-gray-700 dark:text-gray-300">
+      <p className="text-xl md:text-2xl text-slate-300 dark:text-slate-400 font-light">
         Your AI Palette Magician!
       </p>
     </header>
