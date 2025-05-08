@@ -1,6 +1,44 @@
 @import "tailwindcss";
 
-body {
-  @apply bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200;
-  font-family: 'Inter', sans-serif; /* Príklad fontu - nainštaluj alebo použi systémový */
+
+@layer base {
+  body {
+    @apply bg-slate-900 text-slate-200 antialiased; /* Default dark theme */
+    /* Or a light theme default: @apply bg-slate-50 text-slate-800 antialiased; */
+  }
+  /* Custom scrollbar for a cleaner look (optional) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-700 dark:bg-slate-800 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-purple-500 hover:bg-purple-400 rounded-full;
+  }
+}
+
+/* Glassmorphism utility class */
+.glassmorphic {
+  @apply bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-xl;
+  /* Adjust alpha, blur, and border as needed */
+}
+
+/* Neumorphic-ish button style (use sparingly) */
+.neumorphic-button-light {
+  @apply bg-slate-100 text-slate-700 rounded-lg shadow-[5px_5px_10px_#bec8e4,-5px_-5px_10px_#ffffff]
+         hover:shadow-[inset_2px_2px_5px_#bec8e4,inset_-2px_-2px_5px_#ffffff] transition-shadow;
+}
+.neumorphic-button-dark {
+   @apply bg-slate-800 text-slate-200 rounded-lg shadow-[5px_5px_15px_#1f2937,-5px_-5px_15px_#4b5563]
+         hover:shadow-[inset_3px_3px_7px_#1f2937,inset_-3px_-3px_7px_#4b5563] transition-shadow;
+}
+
+/* Focus ring utilities */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-slate-900 dark:focus:ring-offset-slate-800;
+}
+.focus-ring-inset {
+  @apply focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500;
 }

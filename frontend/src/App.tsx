@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { usePaletteApi } from './hooks/usePaletteApi';
 
 import AppHeader from './components/AppHeader';
@@ -6,6 +6,7 @@ import ImageUploader from './components/InspirationSource/ImageUploader';
 import InspireMeButton from './components/InspirationSource/InspireMeButton';
 import PaletteView from './components/PaletteDisplay/PaletteView';
 import ApiStatus from './components/ApiStatus';
+import { PaletteLoader } from './components/PaletteDisplay/PaletteView'; // Assuming PaletteLoader is exported
 
 // For general API status (root endpoint)
 const ROOT_API_URL = 'http://localhost:8000/';
@@ -19,10 +20,9 @@ function App() {
     extractPalette,
     generateRandomPalette,
     clearError: clearPaletteError,
-    // clearPalette // If you want a button to explicitly clear the palette
+    clearPalette,
   } = usePaletteApi();
 
-  // Fetch initial root API status
   useEffect(() => {
     let isMounted = true;
     fetch(ROOT_API_URL)
@@ -31,62 +31,95 @@ function App() {
         return response.json();
       })
       .then(data => {
-        if (isMounted) setRootApiMessage(data.message || "API responded, but no message found.");
+        if (isMounted) setRootApiMessage(data.message || "API responded.");
       })
       .catch(error => {
         console.error("Error fetching root API status:", error);
-        if (isMounted) setRootApiMessage(`Could not connect to backend. ${error.message}`);
+        if (isMounted) setRootApiMessage(`Backend connection failed. ${error.message}`);
       });
-    return () => { isMounted = false; }; // Cleanup on unmount
+    return () => { isMounted = false; };
   }, []);
 
+  // Memoize the PaletteView to prevent re-renders if only isLoading changes without palette data
+  const MemoizedPaletteView = useMemo(() => (
+    <PaletteView palette={palette} isLoading={false} />
+  ), [palette]);
+
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-50 dark:from-gray-800 dark:via-gray-900 dark:to-black p-4 selection:bg-purple-500 selection:text-white">
-      <div className="container mx-auto flex flex-col items-center py-8 md:py-12 w-full">
+    <div className="min-h-screen w-full flex flex-col items-center justify-start bg-slate-900 selection:bg-purple-600 selection:text-white overflow-x-hidden">
+      {/* Background decorative elements - example */}
+      <div className="fixed inset-0 z-[-1] opacity-20 dark:opacity-30">
+        <div className="absolute top-[-50px] left-[-50px] w-72 h-72 bg-purple-500 rounded-full filter blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-[-50px] right-[-50px] w-72 h-72 bg-sky-500 rounded-full filter blur-3xl animate-pulse-slower"></div>
+        <div className="absolute top-[20%] left-[30%] w-48 h-48 bg-pink-500 rounded-full filter blur-2xl animate-pulse-slowest"></div>
+      </div>
+      
+      <div className="container mx-auto flex flex-col items-center py-8 md:py-12 px-4 w-full relative z-10">
         <AppHeader />
 
-        <main className="w-full max-w-3xl mb-8">
-          <div className="grid md:grid-cols-2 gap-6 items-start"> {/* items-start for different heights */}
-            <ImageUploader
-              onExtract={extractPalette}
-              isLoading={isLoadingPalette}
-              currentError={paletteError}
-              clearCurrentError={clearPaletteError}
-            />
-            <InspireMeButton
-              onGenerate={generateRandomPalette}
-              isLoading={isLoadingPalette}
-              // Pass error/clearError if you want specific error handling per button
-            />
-          </div>
-        </main>
+        {/* Conditional rendering for Input vs. Palette Output for a more focused flow */}
+        {(!palette && !isLoadingPalette && !paletteError) && (
+          <main className="w-full max-w-xl my-8 p-6 md:p-8 space-y-8 glassmorphic">
+            <div>
+              <ImageUploader
+                onExtract={extractPalette}
+                isLoading={isLoadingPalette}
+                currentError={paletteError}
+                clearCurrentError={clearPaletteError}
+              />
+            </div>
+            <div className="text-center text-slate-400 dark:text-slate-500 font-semibold">OR</div>
+            <div>
+              <InspireMeButton
+                onGenerate={generateRandomPalette}
+                isLoading={isLoadingPalette}
+              />
+            </div>
+          </main>
+        )}
 
-        {/* Display palette operation error globally or specifically */}
-        {paletteError && !isLoadingPalette && ( // Show error only if not loading a new palette
-          <div className="w-full max-w-2xl p-4 mb-6 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 rounded-md text-center shadow-md" role="alert">
+        {/* Error Display */}
+        {paletteError && !isLoadingPalette && (
+          <div className="w-full max-w-xl p-4 my-6 bg-red-500/20 backdrop-blur-md border border-red-500/50 text-red-100 rounded-lg text-center shadow-lg" role="alert">
             <div className="flex items-center justify-between">
-                <div>
-                    <p className="font-bold">Error:</p>
-                    <p>{paletteError}</p>
-                </div>
-                <button 
-                    onClick={clearPaletteError} 
-                    className="ml-4 p-1 text-red-600 dark:text-red-300 hover:text-red-800 dark:hover:text-red-100 rounded-full focus:outline-none focus:ring-1 focus:ring-red-500"
-                    aria-label="Dismiss error"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                </button>
+              <div className="text-left">
+                <p className="font-bold text-red-50">Oops! Something went wrong.</p>
+                <p className="text-sm">{paletteError}</p>
+              </div>
+              <button
+                onClick={() => { clearPaletteError(); clearPalette(); }} // Also clear palette on error dismiss
+                className="ml-4 p-2 text-red-100 hover:bg-red-500/30 rounded-full focus-ring"
+                aria-label="Dismiss error and clear palette"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
           </div>
         )}
 
-        <section className="w-full flex justify-center">
-          <PaletteView palette={palette} isLoading={isLoadingPalette} />
-        </section>
+        {/* Loading State for Palette */}
+        {isLoadingPalette && (
+          <div className="w-full flex justify-center my-8">
+            <PaletteLoader />
+          </div>
+        )}
 
-        <footer className="mt-auto pt-10">
+        {/* Palette Display Area - This becomes the main focus once a palette is loaded */}
+        {palette && !isLoadingPalette && !paletteError && (
+          <section className="w-full flex flex-col items-center my-8">
+            {MemoizedPaletteView}
+            <button
+              onClick={clearPalette}
+              className="mt-8 px-6 py-2 bg-rose-600/80 hover:bg-rose-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-150 focus-ring"
+            >
+              Start Over / Clear Palette
+            </button>
+          </section>
+        )}
+
+        <footer className="mt-auto pt-12 pb-4">
           <ApiStatus message={rootApiMessage} />
         </footer>
       </div>
