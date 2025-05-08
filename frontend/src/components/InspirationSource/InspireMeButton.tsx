@@ -1,60 +1,54 @@
-import React from 'react';
-import type { Palette, PaletteApiResponse } from '../../types';
+import React, { useState, useCallback } from 'react';
 
 interface InspireMeButtonProps {
-  onPaletteGenerated: (palette: Palette) => void;
-  setIsLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
+  onGenerate: (numColors?: number, prompt?: string) => Promise<void>; // From usePaletteApi
+  isLoading: boolean;
+  // currentError: string | null; // If you want to show API error specific to this button
+  // clearCurrentError: () => void;
 }
 
-const InspireMeButton: React.FC<InspireMeButtonProps> = ({
-  onPaletteGenerated,
-  setIsLoading,
-  setError,
-}) => {
-  const handleClick = async () => {
-    setIsLoading(true);
-    setError(null);
+const InspireMeButton: React.FC<InspireMeButtonProps> = ({ onGenerate, isLoading }) => {
+  // Example: If you want to add a prompt input for "Inspire Me"
+  const [prompt, setPrompt] = useState('');
+  // const [numColors, setNumColors] = useState<number>(5);
 
-    try {
-      const response = await fetch('http://localhost:8000/api/palette/random', {
-        method: 'GET', // Or POST if your backend expects that for generation
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: "Unknown error occurred" }));
-        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
-      }
-
-      const data: PaletteApiResponse = await response.json();
-       if (data.palette && data.palette.length > 0) {
-        onPaletteGenerated(data.palette);
-      } else {
-        throw new Error("Palette data not found in API response.");
-      }
-    } catch (error: unknown) {
-      console.error("Error generating random palette:", error);
-      setError(error instanceof Error ? error.message : "Failed to generate a random palette.");
-      onPaletteGenerated([]); // Clear any existing palette on error
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const handleClick = useCallback(async () => {
+    // If you add numColors/prompt options:
+    // onGenerate(numColors, prompt || undefined);
+    await onGenerate(5, prompt || undefined); // Generate 5 colors, pass prompt if entered
+  }, [onGenerate, prompt]);
 
   return (
-    <div className="w-full p-6 bg-white dark:bg-gray-700 rounded-lg shadow-md mt-6 md:mt-0">
+    <div className="w-full p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
       <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">
         Need Inspiration?
       </h2>
+      {/* Optional: Input for AI prompt */}
+      <div className="mb-4">
+          <label htmlFor="aiPrompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Describe your desired palette (optional AI prompt)
+          </label>
+          <input
+              type="text"
+              id="aiPrompt"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="e.g., serene beach sunset, cyberpunk city"
+              className="w-full px-3 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              disabled={isLoading}
+          />
+      </div>
       <button
         onClick={handleClick}
-        className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded
-                   focus:outline-none focus:shadow-outline text-lg"
+        disabled={isLoading}
+        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-md
+                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800
+                   disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors duration-150 text-lg"
       >
-        Inspire Me ✨
+        {isLoading ? 'Generating...' : 'Inspire Me ✨'}
       </button>
       <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-        Get a unique, AI-generated palette.
+        Get a unique palette.
       </p>
     </div>
   );
