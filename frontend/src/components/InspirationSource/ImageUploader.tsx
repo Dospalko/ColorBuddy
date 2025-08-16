@@ -55,67 +55,124 @@ const ImageUploader = ({ onExtract, isLoading, currentError, clearCurrentError }
     const effectiveError = currentError || localError;
   
     return (
-      <div className="space-y-4">
-        <h3 className="text-2xl font-semibold text-white text-center">Upload an Image</h3>
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
-          <div>
+      <div className="space-y-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
+          {/* Upload Area */}
+          <div className="relative">
             <label
               htmlFor="imageUpload"
-              className="sr-only" // Visually hidden, but good for a11y if input isn't obvious
+              className={`relative block w-full h-40 border-2 border-dashed rounded-2xl 
+                         cursor-pointer transition-all duration-300 group
+                         ${effectiveError 
+                           ? 'border-red-400/50 bg-red-500/5 hover:bg-red-500/10' 
+                           : 'border-purple-400/30 bg-purple-500/5 hover:bg-purple-500/10 hover:border-purple-400/50'
+                         }
+                         ${isLoading ? 'cursor-not-allowed opacity-50' : 'hover:scale-[1.02]'}`}
             >
-              Choose image file
+              <input
+                ref={fileInputRef}
+                type="file"
+                id="imageUpload"
+                name="imageUpload"
+                accept={ALLOWED_MIME_TYPES.join(',')}
+                onChange={handleFileChange}
+                className="sr-only"
+                aria-describedby={effectiveError ? "imageUploadError" : "imageUploadHelp"}
+                aria-invalid={!!effectiveError}
+                disabled={isLoading}
+              />
+              
+              <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+                {selectedFile ? (
+                  <div className="space-y-3">
+                    <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                      <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-200">{selectedFile.name}</p>
+                      <p className="text-sm text-slate-400">{(selectedFile.size / (1024*1024)).toFixed(1)}MB</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-200">Drop your image here</p>
+                      <p className="text-sm text-slate-400">
+                        or <span className="text-purple-400 font-medium">click to browse</span>
+                      </p>
+                      <p className="text-xs text-slate-500 mt-2">
+                        PNG, JPG, GIF up to {MAX_FILE_SIZE_MB}MB
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </label>
-            <input
-              ref={fileInputRef}
-              type="file"
-              id="imageUpload"
-              name="imageUpload"
-              accept={ALLOWED_MIME_TYPES.join(',')}
-              onChange={handleFileChange}
-              className={`w-full text-sm px-3 py-2.5 rounded-lg border-2
-                         border-dashed placeholder-slate-400
-                         text-slate-300 bg-white/5 hover:bg-white/10
-                         focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500
-                         transition-colors duration-200
-                         file:hidden cursor-pointer
-                         ${effectiveError ? 'border-red-500/70 text-red-300' : 'border-slate-600/70 hover:border-slate-500/70'}`}
-              aria-describedby={effectiveError ? "imageUploadError" : "imageUploadHelp"}
-              aria-invalid={!!effectiveError}
-              disabled={isLoading}
-            />
-            <p id="imageUploadHelp" className="mt-1.5 text-xs text-slate-400 text-center">
-              {selectedFile ? selectedFile.name : `Click to select (PNG, JPG, GIF, Max ${MAX_FILE_SIZE_MB}MB)`}
-            </p>
           </div>
-  
+
+          {/* Preview */}
           {previewUrl && !effectiveError && (
-            <div className="p-2 border border-slate-700 rounded-md bg-black/20">
-              <img src={previewUrl} alt="Selected preview" className="max-h-36 rounded object-contain mx-auto" />
+            <div className="relative">
+              <div className="glassmorphic p-4 rounded-2xl">
+                <div className="relative overflow-hidden rounded-xl">
+                  <img 
+                    src={previewUrl} 
+                    alt="Selected preview" 
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                </div>
+                <div className="mt-3 text-center">
+                  <p className="text-sm text-slate-300">Ready to extract colors</p>
+                </div>
+              </div>
             </div>
           )}
-  
+
+          {/* Error Display */}
           {effectiveError && (
-              <p id="imageUploadError" role="alert" className="text-sm text-red-400 text-center py-1 px-2 bg-red-500/20 rounded-md">
-                  {effectiveError}
-              </p>
+            <div className="glassmorphic p-4 border-red-400/30 bg-red-500/10">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-sm text-red-300">{effectiveError}</p>
+              </div>
+            </div>
           )}
-  
+
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={!selectedFile || isLoading || !!localError}
-            className="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700
-                       text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:shadow-lg
-                       focus-ring disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 text-base"
+            className="btn-primary w-full relative overflow-hidden"
           >
             {isLoading ? (
               <span className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Extracting...
+                Extracting Colors...
               </span>
-            ) : 'Reveal Colors'}
+            ) : (
+              <span className="flex items-center justify-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                Extract Palette
+              </span>
+            )}
           </button>
         </form>
       </div>
