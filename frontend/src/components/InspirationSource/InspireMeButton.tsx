@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 interface InspireMeButtonProps {
   onGenerate: (numColors?: number, prompt?: string) => Promise<void>;
   isLoading: boolean;
 }
 
-const InspireMeButton: React.FC<InspireMeButtonProps> = ({ onGenerate, isLoading }) => {
+const InspireMeButton = ({ onGenerate, isLoading }: InspireMeButtonProps) => {
   const [prompt, setPrompt] = useState('');
 
   const handleClick = useCallback(async () => {

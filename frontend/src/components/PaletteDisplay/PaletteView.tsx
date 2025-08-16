@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Palette } from '../../types';
 import ColorCard from './ColorCard';
 import AccessibilityReport from './AccessibilityReport';
@@ -6,7 +5,7 @@ import ExportOptions from './ExportOptions';
 // PaletteLoader should be imported from its own file if you made one, or keep it here
 // For this example, assuming it's still co-located or imported correctly.
 
-export const PaletteLoader: React.FC = () => (
+export const PaletteLoader = () => (
     <div className="w-full max-w-2xl p-6 mt-8 text-center">
       <div className="animate-pulse flex flex-col items-center">
         <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mb-6"></div>
@@ -30,7 +29,7 @@ interface PaletteViewProps {
   isLoading: boolean; // This prop is now mainly for the parent to decide to show PaletteLoader
 }
 
-const PaletteView: React.FC<PaletteViewProps> = ({ palette /*, isLoading */ }) => {
+const PaletteView = ({ palette /*, isLoading */ }: PaletteViewProps) => {
   // isLoading prop is effectively handled by parent App.tsx now for showing PaletteLoader
   // This component now assumes it's only rendered when !isLoading and palette exists
 

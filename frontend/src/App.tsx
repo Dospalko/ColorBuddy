@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { usePaletteApi } from './hooks/usePaletteApi';
 
 import AppHeader from './components/AppHeader';

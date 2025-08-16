@@ -1,4 +1,4 @@
-import React, { useState, type ChangeEvent, type FormEvent, useCallback, useRef } from 'react';
+import { useState, type ChangeEvent, type FormEvent, useCallback, useRef } from 'react';
 
 interface ImageUploaderProps {
   onExtract: (formData: FormData, numColors?: number) => Promise<void>; // From usePaletteApi
@@ -10,7 +10,7 @@ interface ImageUploaderProps {
 const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/gif'];
 const MAX_FILE_SIZE_MB = 5; // Should ideally match backend config
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({ onExtract, isLoading, currentError, clearCurrentError }) => {
+const ImageUploader = ({ onExtract, isLoading, currentError, clearCurrentError }: ImageUploaderProps) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [localError, setLocalError] = useState<string | null>(null);
