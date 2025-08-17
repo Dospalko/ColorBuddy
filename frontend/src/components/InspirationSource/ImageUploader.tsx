@@ -150,17 +150,27 @@ const ImageUploader = ({ onExtract, isLoading, currentError, clearCurrentError }
           {/* Preview */}
           {previewUrl && !effectiveError && (
             <div className="relative">
-              <div className="glassmorphic p-4 rounded-2xl">
-                <div className="relative overflow-hidden rounded-xl">
+              <div className="glassmorphic p-6 rounded-2xl">
+                <div className="relative overflow-hidden rounded-xl group">
                   <img 
                     src={previewUrl} 
                     alt="Selected preview" 
-                    className="w-full h-48 object-cover"
+                    className="w-full h-56 sm:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="flex items-center justify-between">
+                      <div className="glassmorphic px-3 py-1 text-sm text-white font-medium">
+                        Preview
+                      </div>
+                      <div className="glassmorphic px-3 py-1 text-xs text-slate-300">
+                        {selectedFile?.name}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-3 text-center">
-                  <p className="text-sm text-slate-300">Ready to extract colors</p>
+                <div className="mt-4 text-center">
+                  <p className="text-slate-300 font-medium">✨ Ready to extract beautiful colors</p>
                 </div>
               </div>
             </div>
@@ -168,41 +178,86 @@ const ImageUploader = ({ onExtract, isLoading, currentError, clearCurrentError }
 
           {/* Error Display */}
           {effectiveError && (
-            <div className="glassmorphic p-4 border-red-400/30 bg-red-500/10">
-              <div className="flex items-center">
-                <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="text-sm text-red-300">{effectiveError}</p>
+            <div className="glassmorphic p-4 border-red-400/30 bg-red-500/10 rounded-xl">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                  <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-red-300 mb-1">Upload Error</p>
+                  <p className="text-sm text-red-400">{effectiveError}</p>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={!selectedFile || isLoading || !!localError}
-            className="btn-primary w-full relative overflow-hidden"
-          >
-            {isLoading ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Extracting Colors...
-              </span>
-            ) : (
-              <span className="flex items-center justify-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                Extract Palette
-              </span>
+          {/* Action Buttons - Enhanced Layout */}
+          <div className="space-y-4">
+            {/* Primary Extract Button */}
+            <button
+              type="submit"
+              disabled={!selectedFile || isLoading || !!localError}
+              className="btn-primary w-full h-14 text-lg font-semibold relative overflow-hidden group"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-3">
+                  <div className="relative">
+                    <svg className="animate-spin h-6 w-6 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </div>
+                  <span>Extracting Colors...</span>
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-3">
+                  <svg className="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <span>Extract Color Palette</span>
+                </span>
+              )}
+            </button>
+
+            {/* Secondary Actions */}
+            {selectedFile && !isLoading && (
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setPreviewUrl(null);
+                    clearCurrentError();
+                    setLocalError(null);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                  className="btn-secondary flex-1 h-12 text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Clear & Start Over
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="btn-secondary flex-1 h-12 text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Choose Different File
+                </button>
+              </div>
             )}
-          </button>
+          </div>
         </form>
       </div>
     );

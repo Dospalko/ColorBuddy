@@ -83,12 +83,12 @@ function App() {
         <main className="w-full flex flex-col items-center mt-8">
           {/* Input Section - Enhanced Cards with better spacing */}
           {(!palette && !isLoadingPalette && !paletteError) && (
-            <div className="w-full max-w-5xl">
-              <div className="grid md:grid-cols-2 gap-10 mb-16">
+            <div className="w-full max-w-6xl">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
                 {/* Image Upload Card */}
-                <div className="group">
-                  <div className="glassmorphic p-10 card-hover h-full">
-                    <div className="text-center mb-8">
+                <div className="group flex">
+                  <div className="glassmorphic p-8 lg:p-10 card-hover h-full w-full flex flex-col">
+                    <div className="text-center mb-8 flex-shrink-0">
                       <div className="w-20 h-20 bg-gradient-to-r from-sky-400 to-indigo-600 rounded-3xl 
                                     flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 
                                     shadow-lg shadow-sky-500/25">
@@ -97,24 +97,26 @@ function App() {
                                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                       </div>
-                      <h3 className="text-3xl font-bold text-white mb-3 gradient-text">Extract from Image</h3>
-                      <p className="text-slate-300 text-base leading-relaxed">
+                      <h3 className="text-2xl lg:text-3xl font-bold text-white mb-3 gradient-text">Extract from Image</h3>
+                      <p className="text-slate-300 text-sm lg:text-base leading-relaxed">
                         Upload any image and watch AI extract the perfect color palette with intelligent analysis
                       </p>
                     </div>
-                    <ImageUploader
-                      onExtract={extractPalette}
-                      isLoading={isLoadingPalette}
-                      currentError={paletteError}
-                      clearCurrentError={clearPaletteError}
-                    />
+                    <div className="flex-1 flex items-start">
+                      <ImageUploader
+                        onExtract={extractPalette}
+                        isLoading={isLoadingPalette}
+                        currentError={paletteError}
+                        clearCurrentError={clearPaletteError}
+                      />
+                    </div>
                   </div>
                 </div>
 
                 {/* AI Generation Card */}
-                <div className="group">
-                  <div className="glassmorphic p-10 card-hover h-full">
-                    <div className="text-center mb-8">
+                <div className="group flex">
+                  <div className="glassmorphic p-8 lg:p-10 card-hover h-full w-full flex flex-col">
+                    <div className="text-center mb-8 flex-shrink-0">
                       <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-600 rounded-3xl 
                                     flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300
                                     shadow-lg shadow-purple-500/25">
@@ -123,15 +125,17 @@ function App() {
                                 d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                       </div>
-                      <h3 className="text-3xl font-bold text-white mb-3 gradient-text">AI Generated</h3>
-                      <p className="text-slate-300 text-base leading-relaxed">
+                      <h3 className="text-2xl lg:text-3xl font-bold text-white mb-3 gradient-text">AI Generated</h3>
+                      <p className="text-slate-300 text-sm lg:text-base leading-relaxed">
                         Describe your vision and let our advanced AI create the perfect palette for your project
                       </p>
                     </div>
-                    <InspireMeButton
-                      onGenerate={generateRandomPalette}
-                      isLoading={isLoadingPalette}
-                    />
+                    <div className="flex-1 flex items-center">
+                      <InspireMeButton
+                        onGenerate={generateRandomPalette}
+                        isLoading={isLoadingPalette}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
