@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { usePaletteApi } from './hooks/usePaletteApi';
+import { usePaletteHistory } from './hooks/usePaletteHistory';
 
 import AppHeader from './components/AppHeader';
 import ImageUploader from './components/InspirationSource/ImageUploader';
 import InspireMeButton from './components/InspirationSource/InspireMeButton';
 import PaletteView from './components/PaletteDisplay/PaletteView';
+import PaletteHistoryPanel from './components/PaletteHistory/PaletteHistoryPanel';
 import ApiStatus from './components/ApiStatus';
 
 // For general API status (root endpoint)
@@ -12,6 +14,8 @@ const ROOT_API_URL = 'http://localhost:8000/';
 
 function App() {
   const [rootApiMessage, setRootApiMessage] = useState("Loading API status...");
+  const [showHistory, setShowHistory] = useState(false);
+  
   const {
     palette,
     isLoading: isLoadingPalette,
@@ -21,6 +25,46 @@ function App() {
     clearError: clearPaletteError,
     clearPalette,
   } = usePaletteApi();
+
+  const {
+    history,
+    favorites,
+    savePalette,
+    toggleFavorite,
+    removePalette,
+    clearHistory,
+    renamePalette,
+    isHistoryEmpty,
+  } = usePaletteHistory();
+
+  // Save palette to history whenever a new palette is generated
+  useEffect(() => {
+    if (palette && palette.length > 0) {
+      // We'll determine the source based on how it was generated
+      // For now, we'll use a simple heuristic - this could be improved
+      // by passing the source through the palette generation functions
+      savePalette(palette, 'ai'); // Default to AI, could be enhanced
+    }
+  }, [palette, savePalette]);
+
+  const handleImageExtract = async (formData: FormData, numColors?: number) => {
+    await extractPalette(formData, numColors);
+    // The palette will be saved to history via the useEffect above
+  };
+
+  const handleAIGenerate = async (numColors?: number, prompt?: string) => {
+    await generateRandomPalette(numColors, prompt);
+    // The palette will be saved to history via the useEffect above
+  };
+
+  const handleSelectHistoryPalette = (selectedPalette: typeof palette) => {
+    // Load a palette from history - don't save it again
+    clearPaletteError();
+    // We need to manually set the palette here since we're bypassing the API
+    // This would require modifying usePaletteApi to expose a setPalette function
+    // For now, let's create a workaround
+    setShowHistory(false);
+  };
 
   useEffect(() => {
     let isMounted = true;

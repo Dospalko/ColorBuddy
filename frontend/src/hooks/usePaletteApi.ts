@@ -14,6 +14,7 @@ export interface PaletteApiState {
 export interface PaletteApiCalls {
   extractPalette: (formData: FormData, numColors?: number) => Promise<void>;
   generateRandomPalette: (numColors?: number, prompt?: string) => Promise<void>;
+  setPalette: (palette: Palette | null) => void;
   clearPalette: () => void;
   clearError: () => void;
 }
@@ -33,6 +34,11 @@ export function usePaletteApi(options?: PaletteApiOptions): PaletteApiState & Pa
     clearError();
   }, [clearError]);
 
+  const setCurrentPalette = useCallback((newPalette: Palette | null) => {
+    setPalette(newPalette);
+    setError(null);
+  }, []);
+
 
   const handleApiResponse = async (response: Response) => {
     if (!response.ok) {
@@ -40,7 +46,7 @@ export function usePaletteApi(options?: PaletteApiOptions): PaletteApiState & Pa
       try {
         const errorData = await response.json();
         errorDetail = errorData.detail || errorData.message || errorDetail;
-      } catch (e) {
+      } catch {
         // Ignore if response body is not JSON
       }
       throw new Error(errorDetail);
@@ -69,9 +75,10 @@ export function usePaletteApi(options?: PaletteApiOptions): PaletteApiState & Pa
           body: formData,
         });
         await handleApiResponse(response);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error extracting palette:", err);
-        setError(err.message || "Failed to extract palette from image.");
+        const errorMessage = err instanceof Error ? err.message : "Failed to extract palette from image.";
+        setError(errorMessage);
         setPalette(null); // Clear palette on error
       } finally {
         setIsLoading(false);
@@ -95,9 +102,10 @@ export function usePaletteApi(options?: PaletteApiOptions): PaletteApiState & Pa
       try {
         const response = await fetch(url.toString(), { method: 'GET' });
         await handleApiResponse(response);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error generating random palette:", err);
-        setError(err.message || "Failed to generate a random palette.");
+        const errorMessage = err instanceof Error ? err.message : "Failed to generate a random palette.";
+        setError(errorMessage);
         setPalette(null); // Clear palette on error
       } finally {
         setIsLoading(false);
@@ -106,5 +114,5 @@ export function usePaletteApi(options?: PaletteApiOptions): PaletteApiState & Pa
     [baseUrl]
   );
 
-  return { palette, isLoading, error, extractPalette, generateRandomPalette, clearPalette, clearError };
+  return { palette, isLoading, error, extractPalette, generateRandomPalette, clearPalette, clearError, setPalette: setCurrentPalette };
 }
