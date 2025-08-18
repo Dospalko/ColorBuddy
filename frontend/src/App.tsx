@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import type { Palette } from './types';
 import { usePaletteApi } from './hooks/usePaletteApi';
 import { usePaletteHistory } from './hooks/usePaletteHistory';
 
@@ -22,8 +23,9 @@ function App() {
     error: paletteError,
     extractPalette,
     generateRandomPalette,
-    clearError: clearPaletteError,
     clearPalette,
+    clearError: clearPaletteError,
+    setPalette
   } = usePaletteApi();
 
   const {
@@ -47,22 +49,10 @@ function App() {
     }
   }, [palette, savePalette]);
 
-  const handleImageExtract = async (formData: FormData, numColors?: number) => {
-    await extractPalette(formData, numColors);
-    // The palette will be saved to history via the useEffect above
-  };
-
-  const handleAIGenerate = async (numColors?: number, prompt?: string) => {
-    await generateRandomPalette(numColors, prompt);
-    // The palette will be saved to history via the useEffect above
-  };
-
-  const handleSelectHistoryPalette = (selectedPalette: typeof palette) => {
+  const handleSelectHistoryPalette = (selectedPalette: Palette) => {
     // Load a palette from history - don't save it again
     clearPaletteError();
-    // We need to manually set the palette here since we're bypassing the API
-    // This would require modifying usePaletteApi to expose a setPalette function
-    // For now, let's create a workaround
+    setPalette(selectedPalette); // Use the setPalette from usePaletteApi
     setShowHistory(false);
   };
 
@@ -122,6 +112,40 @@ function App() {
       
       <div className="container mx-auto flex flex-col items-center py-12 md:py-16 px-6 w-full relative z-10 max-w-7xl">
         <AppHeader />
+        
+        {/* History Toggle Button */}
+        <div className="w-full max-w-6xl flex justify-end mb-4">
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className={`glassmorphic px-6 py-3 rounded-xl border transition-all duration-300 flex items-center gap-2 hover:scale-105 ${
+              showHistory 
+                ? 'border-purple-400/50 bg-purple-500/20 text-purple-200' 
+                : 'border-slate-600/50 text-slate-300 hover:border-purple-400/50 hover:text-purple-200'
+            }`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {showHistory ? 'Hide History' : `History (${history.length})`}
+          </button>
+        </div>
+
+        {/* History Panel */}
+        {showHistory && (
+          <div className="w-full max-w-6xl mb-8">
+            <PaletteHistoryPanel
+              history={history}
+              favorites={favorites}
+              onSelectPalette={handleSelectHistoryPalette}
+              onToggleFavorite={toggleFavorite}
+              onRemovePalette={removePalette}
+              onClearHistory={clearHistory}
+              onRenamePalette={renamePalette}
+              isHistoryEmpty={isHistoryEmpty}
+            />
+          </div>
+        )}
 
         {/* Main Content Area with enhanced spacing */}
         <main className="w-full flex flex-col items-center mt-8">
