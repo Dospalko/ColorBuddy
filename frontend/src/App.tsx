@@ -21,6 +21,7 @@ function App() {
     palette,
     isLoading: isLoadingPalette,
     error: paletteError,
+    lastSource,
     extractPalette,
     generateRandomPalette,
     clearPalette,
@@ -41,13 +42,11 @@ function App() {
 
   // Save palette to history whenever a new palette is generated
   useEffect(() => {
-    if (palette && palette.length > 0) {
-      // We'll determine the source based on how it was generated
-      // For now, we'll use a simple heuristic - this could be improved
-      // by passing the source through the palette generation functions
-      savePalette(palette, 'ai'); // Default to AI, could be enhanced
+    if (palette && palette.length > 0 && lastSource && lastSource !== 'manual') {
+      // Only save if it's from image extraction or AI generation, not manual selection
+      savePalette(palette, lastSource);
     }
-  }, [palette, savePalette]);
+  }, [palette, lastSource, savePalette]);
 
   const handleSelectHistoryPalette = (selectedPalette: Palette) => {
     // Load a palette from history - don't save it again

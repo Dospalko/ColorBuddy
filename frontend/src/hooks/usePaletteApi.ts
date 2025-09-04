@@ -9,6 +9,7 @@ export interface PaletteApiState {
   palette: Palette | null;
   isLoading: boolean;
   error: string | null;
+  lastSource?: 'image' | 'ai' | 'manual';
 }
 
 export interface PaletteApiCalls {
@@ -25,6 +26,7 @@ export function usePaletteApi(options?: PaletteApiOptions): PaletteApiState & Pa
   const [palette, setPalette] = useState<Palette | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastSource, setLastSource] = useState<'image' | 'ai' | 'manual' | undefined>(undefined);
 
   const baseUrl = options?.baseUrl || API_BASE_URL;
 
@@ -37,6 +39,7 @@ export function usePaletteApi(options?: PaletteApiOptions): PaletteApiState & Pa
   const setCurrentPalette = useCallback((newPalette: Palette | null) => {
     setPalette(newPalette);
     setError(null);
+    setLastSource('manual'); // When manually setting, it's usually from history
   }, []);
 
 
@@ -64,6 +67,7 @@ export function usePaletteApi(options?: PaletteApiOptions): PaletteApiState & Pa
     async (formData: FormData, numColors?: number) => {
       setIsLoading(true);
       setError(null);
+      setLastSource('image');
       const url = new URL(`${baseUrl}/extract`);
       if (numColors !== undefined) {
         url.searchParams.append('num_colors', String(numColors));
@@ -91,6 +95,7 @@ export function usePaletteApi(options?: PaletteApiOptions): PaletteApiState & Pa
     async (numColors?: number, prompt?: string) => {
       setIsLoading(true);
       setError(null);
+      setLastSource('ai');
       const url = new URL(`${baseUrl}/random`);
       if (numColors !== undefined) {
         url.searchParams.append('num_colors', String(numColors));
@@ -114,5 +119,5 @@ export function usePaletteApi(options?: PaletteApiOptions): PaletteApiState & Pa
     [baseUrl]
   );
 
-  return { palette, isLoading, error, extractPalette, generateRandomPalette, clearPalette, clearError, setPalette: setCurrentPalette };
+  return { palette, isLoading, error, lastSource, extractPalette, generateRandomPalette, clearPalette, clearError, setPalette: setCurrentPalette };
 }

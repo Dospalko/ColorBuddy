@@ -14,6 +14,7 @@ const ImageUploader = ({ onExtract, isLoading, currentError, clearCurrentError }
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [localError, setLocalError] = useState<string | null>(null);
+    const [numColors, setNumColors] = useState<number>(5); // Default to 5 colors
     const fileInputRef = useRef<HTMLInputElement>(null);
   
     const handleFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -49,8 +50,8 @@ const ImageUploader = ({ onExtract, isLoading, currentError, clearCurrentError }
       clearCurrentError(); setLocalError(null);
       const formData = new FormData();
       formData.append('image_file', selectedFile);
-      await onExtract(formData);
-    }, [selectedFile, onExtract, clearCurrentError]);
+      await onExtract(formData, numColors);
+    }, [selectedFile, onExtract, clearCurrentError, numColors]);
   
     const effectiveError = currentError || localError;
   
@@ -191,6 +192,34 @@ const ImageUploader = ({ onExtract, isLoading, currentError, clearCurrentError }
                   <p className="text-sm text-red-400">{effectiveError}</p>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Color Count Selector */}
+          {selectedFile && !effectiveError && (
+            <div className="glassmorphic p-4 space-y-3">
+              <label className="block text-sm font-medium text-slate-300">
+                Number of Colors to Extract
+              </label>
+              <div className="flex gap-2">
+                {[3, 4, 5, 6, 7, 8].map((count) => (
+                  <button
+                    key={count}
+                    type="button"
+                    onClick={() => setNumColors(count)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      numColors === count
+                        ? 'bg-purple-500/20 text-purple-200 border border-purple-400/50 shadow-lg'
+                        : 'bg-slate-700/50 text-slate-400 border border-slate-600/50 hover:bg-slate-700 hover:text-slate-300'
+                    }`}
+                  >
+                    {count}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-slate-400">
+                More colors provide detailed palettes, fewer colors focus on dominant tones
+              </p>
             </div>
           )}
 
