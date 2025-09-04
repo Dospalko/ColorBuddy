@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 
 interface InspireMeButtonProps {
-  onGenerate: (numColors?: number, prompt?: string) => Promise<void>;
+  onGenerate: (numColors?: number, prompt?: string, temperature?: 'warm' | 'cool' | 'neutral') => Promise<void>;
   isLoading: boolean;
 }
 
@@ -19,7 +19,7 @@ const InspireMeButton = ({ onGenerate, isLoading }: InspireMeButtonProps) => {
       enhancedPrompt = enhancedPrompt ? `${enhancedPrompt}, ${temperature} colors` : `${temperature} colors`;
     }
     
-    await onGenerate(numColors, enhancedPrompt || undefined);
+    await onGenerate(numColors, enhancedPrompt || undefined, temperature);
   }, [onGenerate, prompt, numColors, temperature]);
 
   return (

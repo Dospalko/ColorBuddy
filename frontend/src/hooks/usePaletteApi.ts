@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import type { Palette, PaletteApiResponse } from '../types'; // Assuming types.ts is in src/
+import type { Palette, PaletteApiResponse } from '../types';
+import { generatePromptBasedPalette } from '../utils/promptBasedColorGeneration'; // Assuming types.ts is in src/
 
 export interface PaletteApiOptions {
   baseUrl?: string;
@@ -14,7 +15,7 @@ export interface PaletteApiState {
 
 export interface PaletteApiCalls {
   extractPalette: (formData: FormData, numColors?: number) => Promise<void>;
-  generateRandomPalette: (numColors?: number, prompt?: string) => Promise<void>;
+  generateRandomPalette: (numColors?: number, prompt?: string, temperature?: 'warm' | 'cool' | 'neutral') => Promise<void>;
   setPalette: (palette: Palette | null) => void;
   clearPalette: () => void;
   clearError: () => void;
@@ -92,31 +93,31 @@ export function usePaletteApi(options?: PaletteApiOptions): PaletteApiState & Pa
   );
 
   const generateRandomPalette = useCallback(
-    async (numColors?: number, prompt?: string) => {
+    async (numColors?: number, prompt?: string, temperature?: 'warm' | 'cool' | 'neutral') => {
       setIsLoading(true);
       setError(null);
       setLastSource('ai');
-      const url = new URL(`${baseUrl}/random`);
-      if (numColors !== undefined) {
-        url.searchParams.append('num_colors', String(numColors));
-      }
-      if (prompt) {
-        url.searchParams.append('prompt', prompt);
-      }
-
+      
       try {
-        const response = await fetch(url.toString(), { method: 'GET' });
-        await handleApiResponse(response);
+        // Use our intelligent local generation instead of backend
+        const generatedPalette = generatePromptBasedPalette(
+          prompt || '',
+          numColors || 5,
+          temperature || 'neutral'
+        );
+        
+        setPalette(generatedPalette);
+        setError(null);
       } catch (err: unknown) {
-        console.error("Error generating random palette:", err);
-        const errorMessage = err instanceof Error ? err.message : "Failed to generate a random palette.";
+        console.error("Error generating prompt-based palette:", err);
+        const errorMessage = err instanceof Error ? err.message : "Failed to generate palette.";
         setError(errorMessage);
-        setPalette(null); // Clear palette on error
+        setPalette(null);
       } finally {
         setIsLoading(false);
       }
     },
-    [baseUrl]
+    []
   );
 
   return { palette, isLoading, error, lastSource, extractPalette, generateRandomPalette, clearPalette, clearError, setPalette: setCurrentPalette };
